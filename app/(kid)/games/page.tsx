@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getKidSession } from '@/lib/kid-session'
 import { redirect } from 'next/navigation'

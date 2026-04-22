@@ -1,4 +1,5 @@
 'use client'
+export const dynamic = 'force-dynamic'
 
 import { useKidStore } from '@/store/kid-store'
 import { MemoryMatchGame } from '@/components/kid/games/memory-match'

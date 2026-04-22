@@ -1,4 +1,5 @@
 'use client'
+export const dynamic = 'force-dynamic'
 
 import { useKidStore } from '@/store/kid-store'
 import { SpeedTapGame } from '@/components/kid/games/speed-tap'
