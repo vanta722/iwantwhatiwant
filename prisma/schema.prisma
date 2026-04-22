@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum AgeTier {
+  AGES_4_6
+  AGES_7_9
+  AGES_10_12
+}
+
+enum Subject {
+  MATH
+  READING
+  SCIENCE
+}
+
+enum SafetyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionType {
+  LESSON_COMPLETE
+  PERFECT_SCORE_BONUS
+  STREAK_BONUS
+  ACHIEVEMENT_BONUS
+  ITEM_PURCHASE
+  TOKEN_PURCHASE
+}
+
+enum ItemType {
+  AVATAR_COLOR
+  AVATAR_ACCESSORY
+  PET
+  GAME_UNLOCK
+  COSMETIC
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  FAILED
+}
+
+// ─── Parents ──────────────────────────────────────────────────────────────────
+
+model Parent {
+  id         String  @id @default(cuid())
+  clerkId    String  @unique
+  email      String  @unique
+  name       String?
+  familyCode String  @unique
+  parentPin  String? // bcrypt-hashed 4-digit PIN for exiting kid mode
+
+  kids      Kid[]
+  purchases Purchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Kids ────────────────────────────────────────────────────────────────────
+
+model Kid {
+  id       String  @id @default(cuid())
+  parentId String
+  parent   Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  name         String
+  pin          String  // bcrypt-hashed 4-digit PIN
+  ageTier      AgeTier
+  avatarConfig Json    // { baseColor, eyeType, accessory, pet }
+
+  tokenBalance    Int      @default(0)
+  currentStreak   Int      @default(0)
+  lastActivityDate DateTime?
+  screenTimeLimit Int?     // minutes per day, null = no limit
+
+  sessions     KidSession[]
+  progress     LessonProgress[]
+  transactions TokenTransaction[]
+  inventory    InventoryItem[]
+  achievements KidAchievement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Kid Sessions ─────────────────────────────────────────────────────────────
+
+model KidSession {
+  id        String   @id @default(cuid())
+  kidId     String
+  kid       Kid      @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ─── Lessons ─────────────────────────────────────────────────────────────────
+
+model Lesson {
+  id           String       @id @default(cuid())
+  subject      Subject
+  ageTier      AgeTier
+  difficulty   Int          // 1–5
+  topic        String
+  title        String
+  content      Json         // { introduction, concept, example }
+  questions    Json         // Question[]
+  safetyStatus SafetyStatus @default(PENDING)
+  safetyNotes  String?
+  tokenReward  Int          @default(10)
+  timesPlayed  Int          @default(0)
+
+  progress LessonProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subject, ageTier, safetyStatus])
+  @@index([ageTier, difficulty])
+}
+
+// ─── Lesson Progress ──────────────────────────────────────────────────────────
+
+model LessonProgress {
+  id       String @id @default(cuid())
+  kidId    String
+  kid      Kid    @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+
+  completed    Boolean   @default(false)
+  score        Int?      // percentage 0–100
+  perfectScore Boolean   @default(false)
+  tokensEarned Int       @default(0)
+  completedAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([kidId, lessonId])
+}
+
+// ─── Token Transactions ───────────────────────────────────────────────────────
+
+model TokenTransaction {
+  id          String          @id @default(cuid())
+  kidId       String
+  kid         Kid             @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  amount      Int             // positive = earn, negative = spend
+  type        TransactionType
+  description String
+  referenceId String?         // lessonId, itemId, purchaseId, etc.
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Shop Items ───────────────────────────────────────────────────────────────
+
+model ShopItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        ItemType
+  tokenCost   Int
+  isRealMoney Boolean  @default(false) // parent-approved purchase required
+  config      Json     // { emoji, color, style }
+  isActive    Boolean  @default(true)
+
+  inventory InventoryItem[]
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id     String   @id @default(cuid())
+  kidId  String
+  kid    Kid      @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  itemId String
+  item   ShopItem @relation(fields: [itemId], references: [id])
+
+  equipped  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([kidId, itemId])
+}
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+
+model Achievement {
+  id          String @id @default(cuid())
+  key         String @unique
+  name        String
+  description String
+  iconEmoji   String
+  tokenReward Int    @default(0)
+
+  kids KidAchievement[]
+}
+
+model KidAchievement {
+  id            String      @id @default(cuid())
+  kidId         String
+  kid           Kid         @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  earnedAt DateTime @default(now())
+
+  @@unique([kidId, achievementId])
+}
+
+// ─── Purchases ────────────────────────────────────────────────────────────────
+
+model Purchase {
+  id              String         @id @default(cuid())
+  parentId        String
+  parent          Parent         @relation(fields: [parentId], references: [id])
+  kidId           String?
+  stripeSessionId String         @unique
+  amountCents     Int
+  tokensGranted   Int?
+  itemId          String?
+  status          PurchaseStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f0f4ff;
+  --foreground: #1e1b4b;
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-[#f0f4ff] text-[#1e1b4b] font-fredoka;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-fredoka font-semibold;
+  }
+}
+
+@layer components {
+  .kid-btn {
+    @apply inline-flex items-center justify-center rounded-3xl font-fredoka font-semibold text-white
+           transition-all duration-150 active:scale-95 shadow-lg cursor-pointer select-none;
+  }
+
+  .kid-card {
+    @apply bg-white rounded-4xl shadow-lg border-2 border-white/50;
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-br from-brand-purple via-brand-blue to-brand-pink;
+  }
+
+  .token-glow {
+    text-shadow: 0 0 20px rgba(252, 211, 77, 0.8);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* PWA safe areas */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Smooth page transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+}
