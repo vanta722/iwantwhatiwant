@@ -25,23 +25,13 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-async function MaybeClerkProvider({ children }: { children: React.ReactNode }) {
-  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    const { ClerkProvider } = await import('@clerk/nextjs')
-    return <ClerkProvider>{children}</ClerkProvider>
-  }
-  return <>{children}</>
-}
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <MaybeClerkProvider>
-      <html lang="en" className="h-full">
-        <body className="h-full antialiased">
-          <ServiceWorkerRegistration />
-          {children}
-        </body>
-      </html>
-    </MaybeClerkProvider>
+    <html lang="en" className="h-full">
+      <body className="h-full antialiased">
+        <ServiceWorkerRegistration />
+        {children}
+      </body>
+    </html>
   )
 }
