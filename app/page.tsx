@@ -92,22 +92,21 @@ export default function LandingPage() {
           transition={{ delay: 0.9 }}
           className="flex flex-col gap-4 w-full max-w-xs"
         >
-          <Link href="/sign-up">
+          <Link href="/api/demo">
             <Button variant="yellow" size="xl" className="w-full text-2xl font-bold">
-              👋 I&apos;m a Parent
+              🎮 Try Demo Now!
             </Button>
           </Link>
           <Link href="/sign-in">
             <Button variant="ghost" size="lg" className="w-full text-lg border-2 border-white/40">
-              Already have an account? Sign in
+              Parent sign in
             </Button>
           </Link>
 
           <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-3xl p-4 text-left">
-            <p className="font-fredoka text-white/80 text-sm font-medium mb-1">🎮 For Kids</p>
+            <p className="font-fredoka text-white/80 text-sm font-medium mb-1">✨ No account needed</p>
             <p className="font-fredoka text-white/70 text-xs">
-              Ask your parent for your special family link, or visit{' '}
-              <span className="text-brand-yellow font-semibold">iwantwhatiwant.co/play/[your-code]</span>
+              Hit &quot;Try Demo Now&quot; to jump straight into the kid experience — games, lessons, avatar and shop all included!
             </p>
           </div>
         </motion.div>
