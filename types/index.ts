@@ -5,6 +5,9 @@ export interface AvatarConfig {
   eyeType: 'happy' | 'cool' | 'sleepy' | 'excited'
   accessory?: 'hat' | 'glasses' | 'bow' | 'crown' | null
   pet?: 'cat' | 'dog' | 'dragon' | 'unicorn' | 'robot' | null
+  frame?: 'gold' | 'rainbow' | 'fire' | 'ice' | 'galaxy' | 'neon' | null
+  effect?: 'sparkle' | 'glow' | 'stars' | null
+  background?: 'galaxy' | 'forest' | 'ocean' | 'sunset' | 'candy' | null
 }
 
 export interface LessonContent {
@@ -105,6 +108,24 @@ export const ACCESSORY_EMOJIS: Record<string, string> = {
   crown: '👑',
 }
 
+export const FRAME_STYLES: Record<string, { border: string; shadow: string }> = {
+  gold:    { border: 'border-yellow-400',  shadow: '0 0 22px 4px rgba(250,204,21,0.65)' },
+  rainbow: { border: 'border-pink-500',    shadow: '0 0 22px 4px rgba(236,72,153,0.55)' },
+  fire:    { border: 'border-orange-500',  shadow: '0 0 24px 5px rgba(249,115,22,0.7)' },
+  ice:     { border: 'border-sky-300',     shadow: '0 0 22px 4px rgba(125,211,252,0.7)' },
+  galaxy:  { border: 'border-purple-600',  shadow: '0 0 24px 5px rgba(147,51,234,0.65)' },
+  neon:    { border: 'border-green-400',   shadow: '0 0 22px 4px rgba(74,222,128,0.7)' },
+}
+
+export const BACKGROUND_GRADIENTS: Record<string, string> = {
+  galaxy:  'from-indigo-950 via-purple-900 to-violet-950',
+  forest:  'from-green-900 via-emerald-800 to-teal-900',
+  ocean:   'from-blue-900 via-cyan-800 to-sky-900',
+  sunset:  'from-orange-700 via-rose-700 to-pink-800',
+  candy:   'from-pink-500 via-fuchsia-500 to-yellow-400',
+  default: 'from-brand-purple via-[#4f46e5] to-brand-blue',
+}
+
 export function ageToTier(age: number): AgeTier {
   if (age <= 6) return 'AGES_4_6'
   if (age <= 9) return 'AGES_7_9'
@@ -116,3 +137,11 @@ export const TOKEN_REWARDS = {
   PERFECT_SCORE: 50,
   STREAK_BONUS: 5,
 } as const
+
+export function getStreakEmoji(streak: number): string {
+  if (streak >= 30) return '🔥🔥🔥'
+  if (streak >= 14) return '🔥🔥'
+  if (streak >= 7) return '🔥'
+  if (streak >= 3) return '⚡'
+  return '✨'
+}
